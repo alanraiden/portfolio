@@ -1,0 +1,94 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnp/
+.pnp.js
+
+# Build / dev output
+dist/
+build/
+.vite/
+.vitepress/dist/
+*.tgz
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+.env.*        # optional — ignore other env variants
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / debug / coverage
+logs/
+*.log
+coverage/
+coverage-final.json
+nyc_output/
+
+# Caches / temp
+.cache/
+.tmp/
+.cache-loader/
+*.pid
+*.seed
+
+# Tool caches
+.eslintcache
+parcel-cache/
+.cache/
+pnpm-store/
+
+# nvm / node-version files you might have locally
+nvm/
+.nvmrc
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Test results / jest
+test-results/
+jest-cache/
+
+# Misc
+bower_components/
+*.swp
+*~
+.node_modules/
+.vscode/
