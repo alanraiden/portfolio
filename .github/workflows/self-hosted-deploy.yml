@@ -1,15 +1,47 @@
-- name: Install and build
-  run: |
-    cd portfolio
-    npm ci
-    npm run build
+name: Build and Deploy (self-hosted)
 
-- name: Deploy to webroot (self-hosted runner)
-  run: |
-    sudo rm -rf /var/www/alansarang.dpdns.org/*
-    sudo cp -r portfolio/dist/* /var/www/alansarang.dpdns.org/
-    sudo chown -R www-data:www-data /var/www/alansarang.dpdns.org
-    sudo find /var/www/alansarang.dpdns.org -type d -exec chmod 755 {} \;
-    sudo find /var/www/alansarang.dpdns.org -type f -exec chmod 644 {} \;
-    sudo systemctl reload apache2
-  shell: bash
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: [self-hosted, Linux, X64]   # must match runner labels
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+
+      - name: Show build output (debug)
+        run: |
+          echo "WORKDIR = $(pwd)"
+          echo "ls -la of ./dist:"
+          ls -la ./dist || (echo "dist missing! failing"; exit 1)
+          echo "Recursive tree (first 500 lines):"
+          ls -R ./dist | sed -n '1,500p'
+          du -sh ./dist || true
+
+      - name: Deploy to local webroot using rsync
+        run: |
+          echo "Deploying build to /var/www/alansarang.dpdns.org"
+          sudo mkdir -p /var/www/alansarang.dpdns.org
+          sudo rsync -av --delete ./dist/ /var/www/alansarang.dpdns.org/
+          sudo chown -R www-data:www-data /var/www/alansarang.dpdns.org
+          sudo find /var/www/alansarang.dpdns.org -type d -exec chmod 755 {} \;
+          sudo find /var/www/alansarang.dpdns.org -type f -exec chmod 644 {} \;
+          sudo systemctl reload apache2 || true
+
+      - name: Confirm deployment (debug)
+        run: ls -la /var/www/alansarang.dpdns.org | sed -n '1,200p'
