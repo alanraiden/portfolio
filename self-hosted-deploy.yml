@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-deploy:
-    runs-on: [self-hosted, Linux, X64]   # must match runner labels (case-insensitive)
+    runs-on: [self-hosted, Linux, X64]   # must match runner labels
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,11 +25,18 @@ jobs:
         run: npm run build
 
       - name: Deploy to local webroot
-        # this runs on your self-hosted runner and copies build into /var/www/...
         run: |
+          echo "Deploying build to /var/www/alansarang.dpdns.org"
+          # Clear old files
           sudo rm -rf /var/www/alansarang.dpdns.org/*
+          # Copy built files
           sudo cp -r dist/* /var/www/alansarang.dpdns.org/
+          # Set correct permissions
           sudo chown -R www-data:www-data /var/www/alansarang.dpdns.org
           sudo find /var/www/alansarang.dpdns.org -type d -exec chmod 755 {} \;
           sudo find /var/www/alansarang.dpdns.org -type f -exec chmod 644 {} \;
+          # Reload Apache to apply changes
           sudo systemctl reload apache2 || true
+
+      - name: Confirm deployment
+        run: ls -la /var/www/alansarang.dpdns.org
