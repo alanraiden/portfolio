@@ -1,0 +1,35 @@
+name: Build and Deploy (self-hosted)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: [self-hosted, Linux, X64]   # must match runner labels (case-insensitive)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to local webroot
+        # this runs on your self-hosted runner and copies build into /var/www/...
+        run: |
+          sudo rm -rf /var/www/alansarang.dpdns.org/*
+          sudo cp -r dist/* /var/www/alansarang.dpdns.org/
+          sudo chown -R www-data:www-data /var/www/alansarang.dpdns.org
+          sudo find /var/www/alansarang.dpdns.org -type d -exec chmod 755 {} \;
+          sudo find /var/www/alansarang.dpdns.org -type f -exec chmod 644 {} \;
+          sudo systemctl reload apache2 || true
