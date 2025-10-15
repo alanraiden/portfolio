@@ -24,19 +24,24 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to local webroot
+      - name: Show build output (debug)
+        run: |
+          echo "WORKDIR = $(pwd)"
+          echo "ls -la of ./dist:"
+          ls -la ./dist || (echo "dist missing! failing"; exit 1)
+          echo "Recursive tree (first 500 lines):"
+          ls -R ./dist | sed -n '1,500p'
+          du -sh ./dist || true
+
+      - name: Deploy to local webroot using rsync
         run: |
           echo "Deploying build to /var/www/alansarang.dpdns.org"
-          # Clear old files
-          sudo rm -rf /var/www/alansarang.dpdns.org/*
-          # Copy built files
-          sudo cp -r dist/* /var/www/alansarang.dpdns.org/
-          # Set correct permissions
+          sudo mkdir -p /var/www/alansarang.dpdns.org
+          sudo rsync -av --delete ./dist/ /var/www/alansarang.dpdns.org/
           sudo chown -R www-data:www-data /var/www/alansarang.dpdns.org
           sudo find /var/www/alansarang.dpdns.org -type d -exec chmod 755 {} \;
           sudo find /var/www/alansarang.dpdns.org -type f -exec chmod 644 {} \;
-          # Reload Apache to apply changes
           sudo systemctl reload apache2 || true
 
-      - name: Confirm deployment
-        run: ls -la /var/www/alansarang.dpdns.org
+      - name: Confirm deployment (debug)
+        run: ls -la /var/www/alansarang.dpdns.org | sed -n '1,200p'
