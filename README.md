@@ -33,12 +33,7 @@ pnpm dev
 # or
 bun dev
 ```
-
-## Author
-
-```
-Developed by ThemeWagon and development team.
-```
+adadadasdasdasdasdasddddddddddddddddddddddddddddddddd
 
 ## License
 
